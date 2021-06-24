@@ -19,7 +19,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 client.connect(err => {
   const blogsCollection = client.db("pheroBlogs").collection("blogs");
-  // perform actions on the collection object
+  // create blog
   app.post('/addBlog',(req,res)=>{
     const file = req.files.file;
     const title = req.body.title;
@@ -38,7 +38,28 @@ client.connect(err => {
     })
 
   })
-
+  //show all blogs
+  app.get('/blogs',(req, res) =>{
+    blogsCollection.find({})
+    .toArray((err, documents) => {
+        res.send(documents);
+    })
+  })
+  //show single blog
+  app.get('/blog/:id',(req, res) =>{
+    blogsCollection.find({_id: ObjectId(req.params.id)})
+    .toArray((err, result) =>{
+      res.send(result[0]);
+    })
+  })
+  //delete blog
+  app.delete('/blog/:id',(req, res)=>{
+    blogsCollection.deleteOne({_id: ObjectId(req.params.id)})
+    .then(result =>{
+      res.send(result.deletedCount>0);
+      console.log('deleted success')
+    })
+  })
   console.log("db connected!!");;
 });
 
